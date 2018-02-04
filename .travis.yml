@@ -36,9 +36,9 @@ addons:
     - junit
 before_install:
   - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-5 60 --slave /usr/bin/g++ g++ /usr/bin/g++-5
-  - wget http://github.com/SWI-Prolog/swipl/archive/V5.6.64.tar.gz
-  - tar xzvf V5.6.64.tar.gz
-  - cd swipl-5.6.64
+  - wget http://github.com/SWI-Prolog/swipl/archive/V5.6.34.tar.gz
+  - tar xzvf V5.6.34.tar.gz
+  - cd swipl-5.6.34
   - ./configure --enable-shared
   - make
   - sudo make install
