@@ -4,9 +4,9 @@ branches:
   only:
   - master
 before_install:
-  - wget http://github.com/SWI-Prolog/swipl/archive/V5.6.34.tar.gz
-  - tar xzvf V5.6.34.tar.gz
-  - cd swipl-5.6.34
+  - wget http://github.com/SWI-Prolog/swipl/archive/V5.6.50.tar.gz
+  - tar xzvf V5.6.50.tar.gz
+  - cd swipl-5.6.50
   - ./configure --enable-shared
   - make
   - sudo make install
