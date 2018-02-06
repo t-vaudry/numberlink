@@ -1,3 +1,10 @@
+:- begin_tests(solution).
+
+test(solution) :-
+    solution().
+
+:- end_tests(solution).
+
 :- use_module(library(thread)).
 
 size(X, N) :-
@@ -45,9 +52,6 @@ connect([(X,Y),(Z,W)|_],N,P,Visited,Path) :-
     connect([(A,B),(Z,W)],N,P,[[Y,X]|Visited],Path).
 
 numberlink(N,P,L,Path) :-
-    % other(3, [[_,_,_,_],[_,1,2,_],[_,1,2,_],[_,_,_,_]],[[(1,1),(2,1)],[(1,2),(2,2)]], Q).
-    % other(4, [[1,2,3,_,_],[_,_,_,4,_],[_,4,2,_,_],[_,_,_,_,_],[_,_,1,3,_]],[[(0,0),(4,2)],[(0,1),(2,2)],[(0,2),(4,3)],[(1,3),(2,1)]], Q).
-    %solve(L,N,P,[],Temp),
     first_solution([P,Temp],[solve(L,N,P,[],Temp)],[]),
     reverse(Temp,Path),
     not_empty(P),
@@ -58,3 +62,95 @@ solve([H|T],N,Q,Paths,NewPaths) :-
     connect(H,N,Q,[],Path),
     reverse(Path, NewPath),
     solve(T,N,Q,[NewPath|Paths],NewPaths).
+
+solution() :-
+    readFromFile(Input),
+    setup_call_cleanup(
+    process_create(path(python),["input.py",Input],[stdout(pipe(Out1))]),
+    read_lines(Out1, FormattedInput),
+    close(Out1)),
+    callNumberlink(FormattedInput,Path),
+    getListString(Path,PathStr),
+    setup_call_cleanup(process_create(path(python),["output.py",Input, PathStr],[stdout(pipe(Out2))]),
+    read_lines(Out2, Output),
+    close(Out2)),
+    writeToFile(Output),
+    !.
+
+writeToFile([H]) :-
+    open('output/output.txt',append,Stream),
+    write(Stream,H), nl(Stream),
+    close(Stream).
+writeToFile([H|T]) :-
+    open('output/output.txt',append,Stream),
+    write(Stream,H), nl(Stream),
+    close(Stream),
+    writeToFile(T).
+
+read_lines(Out, Lines) :-
+    read_line_to_codes(Out, Line1),
+    read_lines(Line1, Out, Lines).
+
+read_lines(end_of_file, _, []) :- !.
+read_lines(Codes, Out, [Line|Lines]) :-
+    atom_codes(Line, Codes),
+    read_line_to_codes(Out, Line2),
+    read_lines(Line2, Out, Lines).
+
+callNumberlink([N,L,P|_],Path) :-
+    atom_number(N,Num),
+    read_term_from_atom(L,Board,[]),
+    read_term_from_atom(P,Points,[]),
+    numberlink(Num,Board,Points,Path).
+
+getListString(List,Str) :-
+    string_concat("","[",Temp),
+    convertList(List,Temp2),
+    string_concat(Temp,Temp2,Temp3),
+    string_concat(Temp3,"]",Str).
+
+convertList([H],Str) :-
+    string_concat("","[",Temp),
+    convertSubList(H,NewTemp),
+    string_concat(Temp,NewTemp,Temp2),
+    string_concat(Temp2,"]",Str).
+    
+convertList([H|T],Str) :-
+    string_concat("","[",Temp1),
+    convertSubList(H,Temp2),
+    string_concat(Temp1,Temp2,Temp3),
+    string_concat(Temp3,"]",Temp4),
+    convertList(T,NewTemp),
+    string_concat(Temp4,",",Temp5),
+    string_concat(Temp5,NewTemp,Str),
+    !.
+
+convertSubList([H],Str) :-
+    convertPoint(H,Str).
+convertSubList([H|T],Str) :-
+    convertPoint(H,Temp),
+    convertSubList(T,NewTemp),
+    string_concat(Temp,",",Temp2),
+    string_concat(Temp2,NewTemp,Str).
+
+convertPoint([H,T|_],Str) :-
+    string_concat("","[",Temp1),
+    atom_number(Num1,H),
+    atomic_concat(Temp1,Num1,Temp2),
+    string_concat(Temp2,",",Temp3),
+    atom_number(Num2,T),
+    atomic_concat(Temp3,Num2,Temp4),
+    string_concat(Temp4,"]",Str).
+
+readFromFile(Str) :-
+    open('input/input.txt', read, Lines),
+    read_string(Lines,_,Str),
+    close(Lines).
+
+read_file(Stream,[]) :-
+    at_end_of_stream(Stream).
+
+read_file(Stream,[X|L]) :-
+    \+ at_end_of_stream(Stream),
+    read(Stream,X),
+    read_file(Stream,L).

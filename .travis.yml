@@ -3,16 +3,10 @@ python: 2.7
 branches:
   only:
   - master
-before_install:
-  - wget http://github.com/SWI-Prolog/swipl/archive/V5.6.34.tar.gz
-  - tar xzvf V5.6.34.tar.gz
-  - cd swipl-5.6.34
-  - ./configure --enable-shared
-  - make
-  - sudo make install
-  - python2.7 -m venv venv
-  - source venv/bin/activate
-install:
-  - pip install -r requirements.txt
-script:  
-  - python parsing.py "(2,1,(1: (1,2),(2,2)))"
+before_script:
+  - sudo apt-add-repository ppa:swi-prolog/devel -y
+  - sudo apt-get update -q
+  - sudo apt-get install swi-prolog-nox
+script:
+  - swipl -s numberlink.pl -g run_tests,halt -t 'halt(1)'
+  - cat output/output.txt
