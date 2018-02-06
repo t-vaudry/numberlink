@@ -4,10 +4,17 @@ sudo: required
 branches:
   only:
   - master
+addons:
+  artifacts:
+    s3_region: "us-east-2"
+    paths:
+      - output-${TRAVIS_BUILD_NUMBER}.zip
 before_script:
   - sudo apt-add-repository ppa:swi-prolog/devel -y
   - sudo apt-get update -q
   - sudo apt-get install swi-prolog-nox
 script:
   - swipl -s numberlink.pl -g run_tests,halt -t 'halt(1)'
-  - cat output/output.txt
+
+after_success:
+  - zip -r output-${TRAVIS_BUILD_NUMBER} ./output

@@ -1,7 +1,19 @@
 :- begin_tests(solution).
 
 test(solution) :-
-    solution().
+    solution("1").
+
+test(solution) :-
+    solution("2").
+
+test(solution) :-
+    solution("3").
+
+test(solution) :-
+    solution("4").
+
+test(solution) :-
+    solution("5").
 
 :- end_tests(solution).
 
@@ -63,8 +75,8 @@ solve([H|T],N,Q,Paths,NewPaths) :-
     reverse(Path, NewPath),
     solve(T,N,Q,[NewPath|Paths],NewPaths).
 
-solution() :-
-    readFromFile(Input),
+solution(FileNumber) :-
+    readFromFile(Input,FileNumber),
     setup_call_cleanup(
     process_create(path(python),["input.py",Input],[stdout(pipe(Out1))]),
     read_lines(Out1, FormattedInput),
@@ -74,18 +86,22 @@ solution() :-
     setup_call_cleanup(process_create(path(python),["output.py",Input, PathStr],[stdout(pipe(Out2))]),
     read_lines(Out2, Output),
     close(Out2)),
-    writeToFile(Output),
+    writeToFile(Output,FileNumber),
     !.
 
-writeToFile([H]) :-
-    open('output/output.txt',append,Stream),
+writeToFile([H],Num) :-
+    string_concat("output/output",Num,Temp),
+    string_concat(Temp,".txt",OutFile),
+    open(OutFile,append,Stream),
     write(Stream,H), nl(Stream),
     close(Stream).
-writeToFile([H|T]) :-
-    open('output/output.txt',append,Stream),
+writeToFile([H|T],Num) :-
+    string_concat("output/output",Num,Temp),
+    string_concat(Temp,".txt",OutFile),
+    open(OutFile,append,Stream),
     write(Stream,H), nl(Stream),
     close(Stream),
-    writeToFile(T).
+    writeToFile(T,Num).
 
 read_lines(Out, Lines) :-
     read_line_to_codes(Out, Line1),
@@ -142,8 +158,10 @@ convertPoint([H,T|_],Str) :-
     atomic_concat(Temp3,Num2,Temp4),
     string_concat(Temp4,"]",Str).
 
-readFromFile(Str) :-
-    open('input/input.txt', read, Lines),
+readFromFile(Str,Num) :-
+    string_concat("input/input",Num,Temp),
+    string_concat(Temp,".txt",InFile),
+    open(InFile, read, Lines),
     read_string(Lines,_,Str),
     close(Lines).
 
