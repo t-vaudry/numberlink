@@ -6,7 +6,7 @@ branches:
   - master
 addons:
   artifacts:
-    s3_region: "us-east-2"
+    s3_region: "us-east-1"
     paths:
       - output-${TRAVIS_BUILD_NUMBER}.zip
 before_script:
