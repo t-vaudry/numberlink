@@ -78,12 +78,12 @@ solve([H|T],N,Q,Paths,NewPaths) :-
 solution(FileNumber) :-
     readFromFile(Input,FileNumber),
     setup_call_cleanup(
-    process_create(path(python),["input.py",Input],[stdout(pipe(Out1))]),
+    process_create(path(python2),["input.py",Input],[stdout(pipe(Out1))]),
     read_lines(Out1, FormattedInput),
     close(Out1)),
     callNumberlink(FormattedInput,Path),
     getListString(Path,PathStr),
-    setup_call_cleanup(process_create(path(python),["output.py",Input, PathStr],[stdout(pipe(Out2))]),
+    setup_call_cleanup(process_create(path(python2),["output.py",Input, PathStr],[stdout(pipe(Out2))]),
     read_lines(Out2, Output),
     close(Out2)),
     writeToFile(Output,FileNumber),
